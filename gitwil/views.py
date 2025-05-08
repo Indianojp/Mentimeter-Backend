@@ -1,5 +1,6 @@
-from gitwil import app
+from gitwil import app, db
 from flask import render_template, request, jsonify
+from gitwil.models import Contato
 
 @app.route('/')
 def homepage():
@@ -11,9 +12,31 @@ def homepage():
     }
     return render_template('index.html', context = context)
 
-@app.route('/graficos')
+@app.route('/contato', methods=['GET','POST'])
 def pag():
-    return "simboraaaa"
+    context = {}
+    if request.method == 'GET':
+        pesquisa = request.args.get('pesquisa')
+        context.update({'pesquisa':pesquisa})
+        print(pesquisa)
+
+    if request.method == 'POST':
+        nome = request.form['nome']
+        email = request.form['email']
+        assunto = request.form['assunto']
+        mensagem = request.form['mensagem']
+
+        contato=Contato(
+            nome=nome,
+            email=email,
+            assunto=assunto,
+            contato=mensagem,
+            respondido=1
+        )
+        db.session.add(contato)
+        db.session.commit()
+
+    return render_template('contato.html', context = context)
 
 respostas = []
 @app.route('/resposta', methods=['POST'])
